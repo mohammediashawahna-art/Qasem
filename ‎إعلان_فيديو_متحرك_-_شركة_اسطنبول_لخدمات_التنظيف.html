@@ -1,0 +1,2319 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إعلان فيديو متحرك - شركة اسطنبول لخدمات التنظيف</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue-light: #0e4a72;
+      --blue-dark: #0a2f4d;
+      --orange: #f28c28;
+      --orange-hover: #ff9d3b;
+      --white: #ffffff;
+      --glass-bg: rgba(14, 74, 114, 0.55);
+      --glass-border: rgba(255, 255, 255, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Cairo', Tahoma, sans-serif;
+      background: radial-gradient(circle at 50% 15%, var(--blue-light) 0%, var(--blue-dark) 75%, #061c2e 100%);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px 16px 36px;
+      direction: rtl;
+      overflow-x: hidden;
+    }
+
+    .app-header {
+      text-align: center;
+      margin-bottom: 18px;
+      max-width: 960px;
+      width: 100%;
+    }
+
+    .app-header h1 {
+      font-size: clamp(1.35rem, 3vw, 2rem);
+      font-weight: 900;
+      color: var(--white);
+      letter-spacing: 0.2px;
+      text-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .app-header h1 span.highlight {
+      color: var(--orange);
+    }
+
+    .app-header p {
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.82);
+      margin-top: 4px;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(280px, 400px) minmax(300px, 440px);
+      gap: 24px;
+      align-items: start;
+      justify-content: center;
+      width: 100%;
+      max-width: 920px;
+    }
+
+    @media (max-width: 820px) {
+      .workspace {
+        grid-template-columns: 1fr;
+        max-width: 440px;
+      }
+    }
+
+    .canvas-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    .canvas-frame {
+      position: relative;
+      width: 100%;
+      max-width: 380px;
+      aspect-ratio: 9 / 16;
+      border-radius: 24px;
+      padding: 8px;
+      background: linear-gradient(145deg, rgba(242, 140, 40, 0.85), rgba(14, 74, 114, 0.9));
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), 0 0 30px rgba(242, 140, 40, 0.2);
+    }
+
+    canvas#adCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 18px;
+      background-color: var(--blue-dark);
+      cursor: pointer;
+    }
+
+    .timeline-bar {
+      width: 100%;
+      max-width: 380px;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(10, 47, 77, 0.75);
+      padding: 8px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--glass-border);
+    }
+
+    .timeline-bar input[type="range"] {
+      flex: 1;
+      accent-color: var(--orange);
+      cursor: pointer;
+      height: 6px;
+    }
+
+    .time-readout {
+      font-size: 0.85rem;
+      font-weight: 700;
+      min-width: 78px;
+      text-align: left;
+      direction: ltr;
+      color: var(--orange);
+    }
+
+    .controls-panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: 22px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.32);
+    }
+
+    .panel-section-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--orange);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      padding-bottom: 8px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    button.ctrl-btn {
+      font-family: 'Cairo', Tahoma, sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+    }
+
+    button.ctrl-btn:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    button.ctrl-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--orange) 0%, #d97214 100%);
+      color: var(--white);
+      box-shadow: 0 6px 18px rgba(242, 140, 40, 0.35);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, var(--orange-hover) 0%, var(--orange) 100%);
+      box-shadow: 0 8px 22px rgba(242, 140, 40, 0.5);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .sound-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(10, 47, 77, 0.65);
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .sound-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 0.98rem;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 54px;
+      height: 30px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.22);
+      transition: 0.25s;
+      border-radius: 30px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 4px;
+      bottom: 4px;
+      background-color: var(--white);
+      transition: 0.25s;
+      border-radius: 50%;
+    }
+
+    .switch input:checked + .slider {
+      background-color: var(--orange);
+    }
+
+    .switch input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+
+    .upload-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .upload-card {
+      background: rgba(10, 47, 77, 0.6);
+      border: 1px dashed rgba(242, 140, 40, 0.55);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .upload-card:hover {
+      border-color: var(--orange);
+      background: rgba(10, 47, 77, 0.8);
+    }
+
+    .upload-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .upload-badge {
+      font-size: 0.76rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(242, 140, 40, 0.2);
+      color: var(--orange);
+      font-weight: 700;
+    }
+
+    .upload-card input[type="file"] {
+      font-family: 'Cairo', Tahoma, sans-serif;
+      font-size: 0.84rem;
+      color: rgba(255, 255, 255, 0.85);
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .upload-card input[type="file"]::file-selector-button {
+      font-family: 'Cairo', Tahoma, sans-serif;
+      background: var(--blue-light);
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      padding: 5px 12px;
+      margin-left: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: background 0.2s;
+    }
+
+    .upload-card input[type="file"]::file-selector-button:hover {
+      background: var(--orange);
+      border-color: var(--orange);
+    }
+
+    .status-box {
+      background: rgba(6, 28, 46, 0.78);
+      border: 1px solid rgba(242, 140, 40, 0.4);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .status-line {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--orange), #ffb347);
+      border-radius: 999px;
+      transition: width 0.1s linear;
+    }
+
+    .fallback-download {
+      display: none;
+      margin-top: 4px;
+      padding: 10px 14px;
+      background: rgba(34, 197, 94, 0.18);
+      border: 1px solid rgba(74, 222, 128, 0.55);
+      border-radius: 12px;
+      color: #bbf7d0;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-align: center;
+      text-decoration: none;
+      transition: background 0.2s ease;
+    }
+
+    .fallback-download:hover {
+      background: rgba(34, 197, 94, 0.3);
+    }
+
+    .scene-jump-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .scene-chip {
+      font-family: 'Cairo', Tahoma, sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .scene-chip:hover,
+    .scene-chip.active {
+      background: var(--orange);
+      border-color: var(--orange);
+      color: var(--white);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-header">
+    <h1>
+      <span>شركة اسطنبول لخدمات التنظيف</span>
+      <span class="highlight">| إعلان موشن جرافيك 9:16</span>
+    </h1>
+    <p>غسيل • تعقيم • تغليف • تسليم — الخليل - حلحول (0592295000)</p>
+  </header>
+
+  <main class="workspace">
+    <!-- العمود الأول: الكانفاس وشريط الزمن -->
+    <section class="canvas-stage">
+      <div class="canvas-frame">
+        <canvas id="adCanvas" width="1080" height="1920" title="اضغط للتشغيل أو الإيقاف المؤقت"></canvas>
+      </div>
+      <div class="timeline-bar">
+        <input type="range" id="timeScrubber" min="0" max="16" step="0.033" value="0" aria-label="شريط تقديم الإعلان">
+        <span class="time-readout" id="timeReadout">0.0s / 16.0s</span>
+      </div>
+    </section>
+
+    <!-- العمود الثاني: أدوات التحكم والصور والتسجيل -->
+    <aside class="controls-panel">
+      <div>
+        <div class="panel-section-title">
+          <span>التحكم بالإعلان والتسجيل</span>
+          <span style="font-size:0.8rem; color:rgba(255,255,255,0.75);">1080×1920 • 30 FPS</span>
+        </div>
+        <div class="btn-group" style="margin-top: 10px;">
+          <button type="button" id="playReplayBtn" class="ctrl-btn btn-primary">
+            <span>▶</span>
+            <span id="playBtnText">تشغيل / إعادة</span>
+          </button>
+          <button type="button" id="downloadVideoBtn" class="ctrl-btn btn-secondary">
+            <span>⬇</span>
+            <span>تحميل الفيديو</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- مفتاح الصوت -->
+      <div class="sound-toggle-row">
+        <div class="sound-label">
+          <span id="soundIcon">🔊</span>
+          <span>الصوت (موسيقى خلفية هادئة)</span>
+        </div>
+        <label class="switch" for="soundToggle">
+          <input type="checkbox" id="soundToggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- الانتقال السريع بين المشاهد -->
+      <div>
+        <div class="panel-section-title">
+          <span>المشاهد الخمسة (16 ثانية)</span>
+        </div>
+        <div class="scene-jump-list" style="margin-top: 8px;">
+          <button type="button" class="scene-chip active" data-time="0">1. غسيل (0-3ث)</button>
+          <button type="button" class="scene-chip" data-time="3.05">2. تعقيم (3-6ث)</button>
+          <button type="button" class="scene-chip" data-time="6.05">3. تغليف (6-9.5ث)</button>
+          <button type="button" class="scene-chip" data-time="9.55">4. تسليم (9.5-13ث)</button>
+          <button type="button" class="scene-chip" data-time="13.05">5. ختام (13-16ث)</button>
+        </div>
+      </div>
+
+      <!-- رفع الصور الاختيارية -->
+      <div>
+        <div class="panel-section-title">
+          <span>تخصيص صور المشاهد (اختياري)</span>
+        </div>
+        <div class="upload-grid" style="margin-top: 10px;">
+          <div class="upload-card">
+            <div class="upload-card-header">
+              <label for="carpetImgInput">صورة السجاد المعلّق (المشهد 1)</label>
+              <span class="upload-badge" id="carpetImgStatus">بديل مرسوم بالكود</span>
+            </div>
+            <input type="file" id="carpetImgInput" accept="image/*">
+          </div>
+
+          <div class="upload-card">
+            <div class="upload-card-header">
+              <label for="deliveryImgInput">صورة التسليم (المشهد 4)</label>
+              <span class="upload-badge" id="deliveryImgStatus">بديل مرسوم بالكود</span>
+            </div>
+            <input type="file" id="deliveryImgInput" accept="image/*">
+          </div>
+        </div>
+      </div>
+
+      <!-- سطر الحالة ونسبة التسجيل -->
+      <div class="status-box">
+        <div class="status-line">
+          <span id="statusText">جاهز للتشغيل أو تسجيل الفيديو</span>
+          <span id="recordPercent" style="color: var(--orange);">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="recordProgressBar"></div>
+        </div>
+        <a id="fallbackDownloadLink" class="fallback-download" href="#" download="istanbul-carpet-ad.webm">
+          📥 اضغط هنا لتحميل الفيديو المسجّل (رابط احتياطي)
+        </a>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // ==========================================
+      // 1. الثوابت وإعدادات الكانفاس
+      // ==========================================
+      const W = 1080;
+      const H = 1920;
+      const DURATION = 16.0;
+      const FPS = 30;
+      const CROSSFADE = 0.5;
+
+      const COLORS = {
+        blueLight: '#0e4a72',
+        blueDark: '#0a2f4d',
+        orange: '#f28c28',
+        white: '#ffffff',
+        crimson: '#7a1218',
+        crimsonDark: '#4a080c',
+        gold: '#f0c14b',
+        goldDark: '#c58b1e'
+      };
+
+      const SCENES = [
+        { id: 0, name: 'غسيل', start: 0.0, end: 3.0 },
+        { id: 1, name: 'تعقيم', start: 3.0, end: 6.0 },
+        { id: 2, name: 'تغليف', start: 6.0, end: 9.5 },
+        { id: 3, name: 'تسليم', start: 9.5, end: 13.0 },
+        { id: 4, name: 'ختام', start: 13.0, end: 16.0 }
+      ];
+
+      const canvas = document.getElementById('adCanvas');
+      const ctx = canvas.getContext('2d');
+
+      // كانفاس ثانوي في الذاكرة لدمج انتقال التلاشي (Crossfade) بدقة
+      const fadeCanvas = document.createElement('canvas');
+      fadeCanvas.width = W;
+      fadeCanvas.height = H;
+      const fadeCtx = fadeCanvas.getContext('2d');
+
+      // عناصر واجهة المستخدم
+      const playReplayBtn = document.getElementById('playReplayBtn');
+      const playBtnText = document.getElementById('playBtnText');
+      const downloadVideoBtn = document.getElementById('downloadVideoBtn');
+      const soundToggle = document.getElementById('soundToggle');
+      const soundIcon = document.getElementById('soundIcon');
+      const carpetImgInput = document.getElementById('carpetImgInput');
+      const deliveryImgInput = document.getElementById('deliveryImgInput');
+      const carpetImgStatus = document.getElementById('carpetImgStatus');
+      const deliveryImgStatus = document.getElementById('deliveryImgStatus');
+      const statusText = document.getElementById('statusText');
+      const recordPercent = document.getElementById('recordPercent');
+      const recordProgressBar = document.getElementById('recordProgressBar');
+      const fallbackDownloadLink = document.getElementById('fallbackDownloadLink');
+      const timeScrubber = document.getElementById('timeScrubber');
+      const timeReadout = document.getElementById('timeReadout');
+      const sceneChips = document.querySelectorAll('.scene-chip');
+
+      // حالة الصور المرفوعة
+      const uploadedImages = {
+        scene1: null,
+        scene1Url: null,
+        scene4: null,
+        scene4Url: null
+      };
+
+      // حالة التشغيل والتسجيل
+      let currentTime = 0;
+      let isPlaying = false;
+      let isRecording = false;
+      let animFrameId = null;
+      let lastPerfTime = 0;
+      let currentBlobUrl = null;
+
+      // ==========================================
+      // 2. دوال الحركة والتنعيم (Easing Functions)
+      // ==========================================
+      function clamp(val, min, max) {
+        return Math.max(min, Math.min(max, val));
+      }
+
+      function progress(t, start, dur) {
+        if (dur <= 0) return 1;
+        return clamp((t - start) / dur, 0, 1);
+      }
+
+      function easeOutCubic(x) {
+        return 1 - Math.pow(1 - clamp(x, 0, 1), 3);
+      }
+
+      function easeInOutCubic(x) {
+        const c = clamp(x, 0, 1);
+        return c < 0.5 ? 4 * c * c * c : 1 - Math.pow(-2 * c + 2, 3) / 2;
+      }
+
+      function easeOutBack(x) {
+        const c = clamp(x, 0, 1);
+        const c1 = 1.70158;
+        const c3 = c1 + 1;
+        return 1 + c3 * Math.pow(c - 1, 3) + c1 * Math.pow(c - 1, 2);
+      }
+
+      function easeOutElastic(x) {
+        const c = clamp(x, 0, 1);
+        if (c === 0 || c === 1) return c;
+        const c4 = (2 * Math.PI) / 3;
+        return Math.pow(2, -10 * c) * Math.sin((c * 10 - 0.75) * c4) + 1;
+      }
+
+      function easeInOutSine(x) {
+        return -(Math.cos(Math.PI * clamp(x, 0, 1)) - 1) / 2;
+      }
+
+      // ==========================================
+      // 3. أدوات الرسم المساعدة (Canvas Helpers)
+      // ==========================================
+      function setupArabicText(c) {
+        c.direction = 'rtl';
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+      }
+
+      function roundRectPath(c, x, y, w, h, r) {
+        const radius = Math.min(r, w / 2, h / 2);
+        c.beginPath();
+        c.moveTo(x + radius, y);
+        c.arcTo(x + w, y, x + w, y + h, radius);
+        c.arcTo(x + w, y + h, x, y + h, radius);
+        c.arcTo(x, y + h, x, y, radius);
+        c.arcTo(x, y, x + w, y, radius);
+        c.closePath();
+      }
+
+      function drawImageCover(c, img, x, y, w, h, zoom) {
+        const scaleFactor = zoom || 1;
+        const imgRatio = img.width / img.height;
+        const boxRatio = w / h;
+        let drawW, drawH;
+        if (imgRatio > boxRatio) {
+          drawH = h * scaleFactor;
+          drawW = drawH * imgRatio;
+        } else {
+          drawW = w * scaleFactor;
+          drawH = drawW / imgRatio;
+        }
+        const drawX = x + (w - drawW) / 2;
+        const drawY = y + (h - drawH) / 2;
+        c.drawImage(img, drawX, drawY, drawW, drawH);
+      }
+
+      // رسم خلفية زخرفية موحدة مستوحاة من بروشور الشركة
+      function drawBrandBackdrop(c, t, radialBright) {
+        const grad = c.createRadialGradient(
+          W * 0.5,
+          H * 0.42,
+          80,
+          W * 0.5,
+          H * 0.5,
+          H * 0.75
+        );
+        if (radialBright) {
+          grad.addColorStop(0, '#166496');
+          grad.addColorStop(0.55, COLORS.blueLight);
+          grad.addColorStop(1, COLORS.blueDark);
+        } else {
+          grad.addColorStop(0, COLORS.blueLight);
+          grad.addColorStop(1, COLORS.blueDark);
+        }
+        c.fillStyle = grad;
+        c.fillRect(0, 0, W, H);
+
+        // دوائر هندسية متداخلة خفيفة في الزوايا (مطابقة لهوية الإعلان المرفق)
+        c.save();
+        c.strokeStyle = 'rgba(255, 255, 255, 0.045)';
+        c.lineWidth = 3;
+        for (let i = 1; i <= 14; i++) {
+          c.beginPath();
+          c.arc(W + 40, H * 0.55, i * 32 + Math.sin(t * 1.5) * 6, 0, Math.PI * 2);
+          c.stroke();
+
+          c.beginPath();
+          c.arc(-40, H * 0.78, i * 28, 0, Math.PI * 2);
+          c.stroke();
+        }
+
+        // شبكة نقاط ناعمة
+        c.fillStyle = 'rgba(255, 255, 255, 0.06)';
+        for (let row = 0; row < 4; row++) {
+          for (let col = 0; col < 8; col++) {
+            c.beginPath();
+            c.arc(140 + col * 38, 1360 + row * 38, 5, 0, Math.PI * 2);
+            c.fill();
+          }
+        }
+        c.restore();
+      }
+
+      // رسم عنوان المشهد الضخم مع الدائرة البرتقالية المرقّمة والشريط البرتقالي
+      function drawSceneHeaderAndBanner(c, stepNumber, titleText, bannerText, localT) {
+        setupArabicText(c);
+
+        const enterTitle = easeOutBack(progress(localT, 0.1, 0.55));
+        const enterBanner = easeOutBack(progress(localT, 0.3, 0.6));
+
+        // 1. العنوان الضخم + رقم المشهد داخل دائرة برتقالية
+        c.save();
+        const titleY = 1435;
+        c.translate(W / 2, titleY);
+        c.scale(0.5 + 0.5 * enterTitle, 0.5 + 0.5 * enterTitle);
+        c.globalAlpha = clamp(localT / 0.25, 0, 1);
+
+        // أقواس زاوية برتقالية تحيط بالعنوان (مستوحاة من تصميم الشركة)
+        c.strokeStyle = COLORS.orange;
+        c.lineWidth = 8;
+        c.beginPath();
+        c.moveTo(230, -85);
+        c.lineTo(-220, -85);
+        c.lineTo(-220, 75);
+        c.stroke();
+
+        c.beginPath();
+        c.moveTo(230, 30);
+        c.lineTo(230, 85);
+        c.lineTo(-120, 85);
+        c.stroke();
+
+        // نص العنوان الضخم
+        c.font = '900 138px "Cairo", Tahoma, sans-serif';
+        c.fillStyle = 'rgba(0, 0, 0, 0.38)';
+        c.fillText(titleText, 0, 10);
+        c.fillStyle = COLORS.white;
+        c.fillText(titleText, 0, 0);
+
+        // الدائرة البرتقالية مع الرقم
+        const badgeX = 235;
+        const badgeY = -82;
+        c.beginPath();
+        c.arc(badgeX, badgeY, 54, 0, Math.PI * 2);
+        c.fillStyle = COLORS.orange;
+        c.fill();
+        c.lineWidth = 6;
+        c.strokeStyle = COLORS.white;
+        c.stroke();
+
+        c.font = '900 58px "Cairo", Tahoma, sans-serif';
+        c.fillStyle = COLORS.white;
+        c.fillText(String(stepNumber), badgeX, badgeY + 4);
+        c.restore();
+
+        // 2. الشريط البرتقالي السفلي
+        c.save();
+        const bannerY = 1665;
+        const bannerW = 880;
+        const bannerH = 118;
+        c.translate(W / 2, bannerY);
+        c.scale(0.7 + 0.3 * enterBanner, 0.7 + 0.3 * enterBanner);
+        c.globalAlpha = clamp((localT - 0.2) / 0.3, 0, 1);
+
+        // ظل الشريط
+        c.fillStyle = 'rgba(0, 0, 0, 0.35)';
+        roundRectPath(c, -bannerW / 2 + 8, -bannerH / 2 + 12, bannerW, bannerH, 26);
+        c.fill();
+
+        // جسم الشريط البرتقالي
+        const banGrad = c.createLinearGradient(-bannerW / 2, 0, bannerW / 2, 0);
+        banGrad.addColorStop(0, '#e07614');
+        banGrad.addColorStop(0.5, COLORS.orange);
+        banGrad.addColorStop(1, '#ff9f40');
+        c.fillStyle = banGrad;
+        roundRectPath(c, -bannerW / 2, -bannerH / 2, bannerW, bannerH, 26);
+        c.fill();
+
+        // إطار أبيض داخلي أنيق
+        c.lineWidth = 4;
+        c.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+        roundRectPath(c, -bannerW / 2 + 10, -bannerH / 2 + 10, bannerW - 20, bannerH - 20, 18);
+        c.stroke();
+
+        // نص الشريط
+        c.font = '800 52px "Cairo", Tahoma, sans-serif';
+        c.fillStyle = COLORS.white;
+        c.fillText(bannerText, 0, 4);
+        c.restore();
+      }
+
+      // ==========================================
+      // 4. الرسم البديل للمشهد 1: زخرفة سجادة فاخرة معلقة
+      // ==========================================
+      function drawOrnamentalCarpet(c, x, y, w, h, baseColor, accentColor, tOffset) {
+        c.save();
+        c.translate(x, y);
+
+        // ظل السجادة المعلقة
+        c.fillStyle = 'rgba(0, 0, 0, 0.42)';
+        roundRectPath(c, 18, 22, w, h, 14);
+        c.fill();
+
+        // الخلفية الأساسية للسجادة
+        const rugGrad = c.createLinearGradient(0, 0, w, h);
+        rugGrad.addColorStop(0, baseColor);
+        rugGrad.addColorStop(0.5, '#8c1922');
+        rugGrad.addColorStop(1, baseColor);
+        c.fillStyle = rugGrad;
+        roundRectPath(c, 0, 0, w, h, 12);
+        c.fill();
+
+        // الإطار الذهبي الخارجي المزخرف
+        c.strokeStyle = accentColor;
+        c.lineWidth = 10;
+        c.strokeRect(26, 26, w - 52, h - 52);
+
+        c.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+        c.lineWidth = 4;
+        c.strokeRect(46, 46, w - 92, h - 92);
+
+        // زخارف هندسية على حواف السجادة
+        const step = 48;
+        c.fillStyle = accentColor;
+        for (let bx = 64; bx < w - 64; bx += step) {
+          c.beginPath();
+          c.moveTo(bx, 30);
+          c.lineTo(bx + 12, 42);
+          c.lineTo(bx, 54);
+          c.lineTo(bx - 12, 42);
+          c.closePath();
+          c.fill();
+
+          c.beginPath();
+          c.moveTo(bx, h - 54);
+          c.lineTo(bx + 12, h - 42);
+          c.lineTo(bx, h - 30);
+          c.lineTo(bx - 12, h - 42);
+          c.closePath();
+          c.fill();
+        }
+
+        // الميدالية الوسطى الفاخرة (Medallion)
+        const cx = w / 2;
+        const cy = h / 2;
+        c.save();
+        c.translate(cx, cy);
+
+        // هالة خارجية للميدالية
+        c.fillStyle = accentColor;
+        c.beginPath();
+        for (let i = 0; i < 16; i++) {
+          const ang = (i * Math.PI) / 8;
+          const rad = i % 2 === 0 ? 155 : 118;
+          const px = Math.cos(ang) * rad;
+          const py = Math.sin(ang) * rad * 1.35;
+          if (i === 0) c.moveTo(px, py);
+          else c.lineTo(px, py);
+        }
+        c.closePath();
+        c.fill();
+
+        // قلب الميدالية الكحلي
+        c.fillStyle = COLORS.blueDark;
+        c.beginPath();
+        c.ellipse(0, 0, 92, 130, 0, 0, Math.PI * 2);
+        c.fill();
+        c.lineWidth = 5;
+        c.strokeStyle = COLORS.white;
+        c.stroke();
+
+        // نجمة زخرفية داخل الميدالية
+        c.fillStyle = COLORS.orange;
+        c.beginPath();
+        for (let i = 0; i < 12; i++) {
+          const ang = (i * Math.PI) / 6 + tOffset * 0.1;
+          const rad = i % 2 === 0 ? 58 : 28;
+          const px = Math.cos(ang) * rad;
+          const py = Math.sin(ang) * rad;
+          if (i === 0) c.moveTo(px, py);
+          else c.lineTo(px, py);
+        }
+        c.closePath();
+        c.fill();
+        c.restore();
+
+        // شراشيب السجادة السفلية (Fringes)
+        c.strokeStyle = '#f5ead6';
+        c.lineWidth = 4;
+        for (let fx = 16; fx <= w - 16; fx += 12) {
+          c.beginPath();
+          c.moveTo(fx, h);
+          c.lineTo(fx + Math.sin(tOffset * 3 + fx) * 3, h + 28);
+          c.stroke();
+        }
+
+        // أنبوب التعليق المعدني العلوي
+        const pipeGrad = c.createLinearGradient(0, -24, 0, 8);
+        pipeGrad.addColorStop(0, '#cfd8dc');
+        pipeGrad.addColorStop(0.5, '#ffffff');
+        pipeGrad.addColorStop(1, '#78909c');
+        c.fillStyle = pipeGrad;
+        roundRectPath(c, -25, -18, w + 50, 26, 12);
+        c.fill();
+
+        c.restore();
+      }
+
+      function drawFallbackHangingCarpets(c, t, zoom) {
+        c.save();
+        c.translate(W / 2, H / 2);
+        c.scale(zoom, zoom);
+        c.translate(-W / 2, -H / 2);
+
+        // خلفية صالة الغسيل الأوتوماتيكي
+        const bgGrad = c.createLinearGradient(0, 0, 0, H);
+        bgGrad.addColorStop(0, '#092238');
+        bgGrad.addColorStop(0.5, '#113c5e');
+        bgGrad.addColorStop(1, '#071b2c');
+        c.fillStyle = bgGrad;
+        c.fillRect(0, 0, W, H);
+
+        // عوارض السقف المعدنية
+        c.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+        c.lineWidth = 14;
+        for (let i = 0; i < 6; i++) {
+          c.beginPath();
+          c.moveTo(0, 180 + i * 110);
+          c.lineTo(W, 120 + i * 110);
+          c.stroke();
+        }
+
+        // سجادة خلفية يسار (كحلي وفضي)
+        drawOrnamentalCarpet(c, 75, 310, 460, 860, '#133254', '#d8dee9', t);
+        // سجادة خلفية يمين (أخضر زمردي وذهبي)
+        drawOrnamentalCarpet(c, 555, 340, 450, 840, '#184a45', '#f0c14b', t + 1);
+        // السجادة الرئيسية الأمامية في المنتصف (أحمر ملكي وذهبي)
+        drawOrnamentalCarpet(c, 250, 240, 580, 980, COLORS.crimson, COLORS.gold, t + 2);
+
+        // قطرات ماء نظيفة تتساقط من السجاد المعلق
+        c.fillStyle = 'rgba(179, 229, 252, 0.75)';
+        for (let i = 0; i < 18; i++) {
+          const dx = 270 + ((i * 37) % 540);
+          const dy = 1230 + (((t * 260) + i * 55) % 240);
+          c.beginPath();
+          c.arc(dx, dy, 5, 0, Math.PI * 2);
+          c.fill();
+        }
+
+        c.restore();
+      }
+
+      // ==========================================
+      // 5. رسم المشاهد الخمسة بالتفصيل
+      // ==========================================
+
+      // المشهد 1 (0 - 3 ث): غسيل
+      function renderScene1(c, localT, globalT) {
+        const zoom = 1.0 + 0.12 * easeInOutSine(localT / 3.0);
+
+        if (uploadedImages.scene1) {
+          drawImageCover(c, uploadedImages.scene1, 0, 0, W, H, zoom);
+        } else {
+          drawFallbackHangingCarpets(c, globalT, zoom);
+        }
+
+        // طبقة زرقاء داكنة شفافة فوق الصورة
+        const overlayGrad = c.createLinearGradient(0, 0, 0, H);
+        overlayGrad.addColorStop(0, 'rgba(10, 47, 77, 0.72)');
+        overlayGrad.addColorStop(0.5, 'rgba(14, 74, 114, 0.56)');
+        overlayGrad.addColorStop(1, 'rgba(10, 47, 77, 0.85)');
+        c.fillStyle = overlayGrad;
+        c.fillRect(0, 0, W, H);
+
+        // فقاعات صابون تصعد للأعلى بنعومة
+        c.save();
+        const bubbleCount = 36;
+        for (let i = 0; i < bubbleCount; i++) {
+          const seed = (i + 1) * 97.13;
+          const radius = 14 + (seed % 42);
+          const speed = 150 + (seed % 140);
+          const baseX = 80 + ((seed * 23) % (W - 160));
+          const startY = H + 60 - ((seed * 41) % (H + 120));
+          const yPos = ((startY - localT * speed) % (H + 140) + (H + 140)) % (H + 140) - 70;
+          const xPos = baseX + Math.sin(localT * 2.6 + i) * 28;
+
+          // جسم الفقاعة
+          const bGrad = c.createRadialGradient(
+            xPos - radius * 0.3,
+            yPos - radius * 0.3,
+            radius * 0.1,
+            xPos,
+            yPos,
+            radius
+          );
+          bGrad.addColorStop(0, 'rgba(255, 255, 255, 0.65)');
+          bGrad.addColorStop(0.35, 'rgba(173, 216, 255, 0.22)');
+          bGrad.addColorStop(0.85, 'rgba(14, 74, 114, 0.12)');
+          bGrad.addColorStop(1, 'rgba(255, 255, 255, 0.55)');
+
+          c.fillStyle = bGrad;
+          c.beginPath();
+          c.arc(xPos, yPos, radius, 0, Math.PI * 2);
+          c.fill();
+
+          c.lineWidth = 2;
+          c.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+          c.stroke();
+
+          // لمعة الفقاعة
+          c.fillStyle = 'rgba(255, 255, 255, 0.85)';
+          c.beginPath();
+          c.arc(xPos - radius * 0.35, yPos - radius * 0.35, radius * 0.18, 0, Math.PI * 2);
+          c.fill();
+        }
+        c.restore();
+
+        // العنوان والشريط البرتقالي
+        drawSceneHeaderAndBanner(
+          c,
+          1,
+          'غسيل',
+          'غسيل سجاد أوتوماتيك بأعلى جودة',
+          localT
+        );
+      }
+
+      // المشهد 2 (3 - 6 ث): تعقيم
+      function renderScene2(c, localT, globalT) {
+        drawBrandBackdrop(c, globalT, true);
+
+        const shieldCX = W / 2;
+        const shieldCY = 740;
+
+        // هالات تتوسع حول الدرع
+        c.save();
+        for (let i = 0; i < 4; i++) {
+          const waveProg = ((localT * 0.65 + i * 0.25) % 1);
+          const waveRad = 130 + waveProg * 430;
+          const waveAlpha = (1 - waveProg) * 0.45;
+          c.strokeStyle = i % 2 === 0
+            ? `rgba(242, 140, 40, ${waveAlpha})`
+            : `rgba(255, 255, 255, ${waveAlpha})`;
+          c.lineWidth = 6 * (1 - waveProg * 0.5);
+          c.beginPath();
+          c.arc(shieldCX, shieldCY, waveRad, 0, Math.PI * 2);
+          c.stroke();
+        }
+        c.restore();
+
+        // درع برتقالي بعلامة صح يظهر بحركة ارتداد
+        const bounceScale = easeOutBack(progress(localT, 0.05, 0.65));
+        const floatY = Math.sin(localT * 3.2) * 12;
+
+        c.save();
+        c.translate(shieldCX, shieldCY + floatY);
+        c.scale(bounceScale, bounceScale);
+
+        // توهج خلفي للدرع
+        const glowGrad = c.createRadialGradient(0, 0, 40, 0, 0, 310);
+        glowGrad.addColorStop(0, 'rgba(242, 140, 40, 0.45)');
+        glowGrad.addColorStop(1, 'rgba(242, 140, 40, 0)');
+        c.fillStyle = glowGrad;
+        c.beginPath();
+        c.arc(0, 0, 310, 0, Math.PI * 2);
+        c.fill();
+
+        // مسار شكل الدرع
+        function traceShield(scaleMult) {
+          const s = scaleMult || 1;
+          c.beginPath();
+          c.moveTo(0, -250 * s);
+          c.bezierCurveTo(110 * s, -250 * s, 210 * s, -215 * s, 225 * s, -185 * s);
+          c.bezierCurveTo(225 * s, 25 * s, 165 * s, 165 * s, 0, 265 * s);
+          c.bezierCurveTo(-165 * s, 165 * s, -225 * s, 25 * s, -225 * s, -185 * s);
+          c.bezierCurveTo(-210 * s, -215 * s, -110 * s, -250 * s, 0, -250 * s);
+          c.closePath();
+        }
+
+        // ظل الدرع
+        c.save();
+        c.translate(0, 18);
+        traceShield(1.02);
+        c.fillStyle = 'rgba(0, 0, 0, 0.35)';
+        c.fill();
+        c.restore();
+
+        // تعبئة الدرع البرتقالي
+        const shGrad = c.createLinearGradient(-220, -240, 220, 250);
+        shGrad.addColorStop(0, '#ffaa4c');
+        shGrad.addColorStop(0.5, COLORS.orange);
+        shGrad.addColorStop(1, '#c9650c');
+        traceShield(1);
+        c.fillStyle = shGrad;
+        c.fill();
+
+        c.lineWidth = 12;
+        c.strokeStyle = COLORS.white;
+        c.stroke();
+
+        // نصف إضاءة ثلاثية الأبعاد على الدرع
+        c.save();
+        traceShield(0.88);
+        c.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+        c.lineWidth = 5;
+        c.stroke();
+        c.restore();
+
+        // علامة الصح البيضاء (✓) تُرسم تدريجياً
+        const checkProg = easeOutCubic(progress(localT, 0.35, 0.45));
+        if (checkProg > 0) {
+          c.save();
+          c.strokeStyle = COLORS.white;
+          c.lineWidth = 30;
+          c.lineCap = 'round';
+          c.lineJoin = 'round';
+          c.shadowColor = 'rgba(0, 0, 0, 0.28)';
+          c.shadowBlur = 14;
+          c.shadowOffsetY = 6;
+
+          const p1 = { x: -88, y: 8 };
+          const p2 = { x: -20, y: 78 };
+          const p3 = { x: 102, y: -58 };
+
+          c.beginPath();
+          c.moveTo(p1.x, p1.y);
+          if (checkProg < 0.4) {
+            const k = checkProg / 0.4;
+            c.lineTo(p1.x + (p2.x - p1.x) * k, p1.y + (p2.y - p1.y) * k);
+          } else {
+            c.lineTo(p2.x, p2.y);
+            const k = (checkProg - 0.4) / 0.6;
+            c.lineTo(p2.x + (p3.x - p2.x) * k, p2.y + (p3.y - p2.y) * k);
+          }
+          c.stroke();
+          c.restore();
+        }
+        c.restore();
+
+        // لمعان ✦ حول الدرع
+        const sparkles = [
+          { x: 220, y: 470, size: 68, phase: 0.0 },
+          { x: 860, y: 490, size: 76, phase: 1.1 },
+          { x: 185, y: 920, size: 60, phase: 2.2 },
+          { x: 890, y: 900, size: 72, phase: 0.7 },
+          { x: 540, y: 370, size: 56, phase: 1.7 },
+          { x: 330, y: 1080, size: 50, phase: 2.9 },
+          { x: 760, y: 1070, size: 54, phase: 0.4 }
+        ];
+
+        c.save();
+        setupArabicText(c);
+        sparkles.forEach((sp) => {
+          const pulse = 0.55 + 0.45 * Math.sin(localT * 5.2 + sp.phase);
+          c.save();
+          c.translate(sp.x, sp.y);
+          c.scale(pulse, pulse);
+          c.font = `900 ${sp.size}px "Cairo", sans-serif`;
+          c.fillStyle = sp.phase > 1.5 ? COLORS.orange : COLORS.white;
+          c.shadowColor = COLORS.white;
+          c.shadowBlur = 16;
+          c.fillText('✦', 0, 0);
+          c.restore();
+        });
+        c.restore();
+
+        drawSceneHeaderAndBanner(c, 2, 'تعقيم', 'نظافة وتعقيم!', localT);
+      }
+
+      // المشهد 3 (6 - 9.5 ث): تغليف
+      function renderScene3(c, localT, globalT) {
+        drawBrandBackdrop(c, globalT, false);
+
+        // دخول السجادة الملفوفة من اليمين
+        const slideIn = easeOutBack(progress(localT, 0.0, 0.85));
+        const carpetX = W / 2 + (1 - slideIn) * 680;
+        const carpetY = 770;
+        const carpetW = 220;
+        const carpetH = 680;
+
+        // نمو طبقة النايلون الشفافة من الأسفل (تبدأ بعد استقرار السجادة)
+        const wrapProg = easeInOutCubic(progress(localT, 0.75, 1.15));
+        // لمعة تمر فوق النايلون
+        const sheenProg = easeInOutCubic(progress(localT, 1.75, 1.1));
+        // ظهور الربطتين البرتقاليتين
+        const tie1Scale = easeOutBack(progress(localT, 1.55, 0.45));
+        const tie2Scale = easeOutBack(progress(localT, 1.75, 0.45));
+
+        c.save();
+        c.translate(carpetX, carpetY);
+
+        // ظل السجادة الملفوفة
+        c.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        roundRectPath(c, -carpetW / 2 + 18, -carpetH / 2 + 24, carpetW, carpetH, 45);
+        c.fill();
+
+        // 1. جسم السجادة الملفوفة (أحمر غامق وذهبي)
+        const cylGrad = c.createLinearGradient(-carpetW / 2, 0, carpetW / 2, 0);
+        cylGrad.addColorStop(0, COLORS.crimsonDark);
+        cylGrad.addColorStop(0.28, COLORS.crimson);
+        cylGrad.addColorStop(0.55, '#9e1b22');
+        cylGrad.addColorStop(0.85, COLORS.crimson);
+        cylGrad.addColorStop(1, COLORS.crimsonDark);
+
+        c.fillStyle = cylGrad;
+        roundRectPath(c, -carpetW / 2, -carpetH / 2, carpetW, carpetH, 36);
+        c.fill();
+
+        // أشرطة وزخارف ذهبية على السجادة الملفوفة
+        c.save();
+        roundRectPath(c, -carpetW / 2, -carpetH / 2, carpetW, carpetH, 36);
+        c.clip();
+
+        const bandPositions = [-240, -110, 20, 150, 260];
+        bandPositions.forEach((by, idx) => {
+          const goldGrad = c.createLinearGradient(-carpetW / 2, 0, carpetW / 2, 0);
+          goldGrad.addColorStop(0, COLORS.goldDark);
+          goldGrad.addColorStop(0.5, COLORS.gold);
+          goldGrad.addColorStop(1, COLORS.goldDark);
+          c.fillStyle = goldGrad;
+          c.fillRect(-carpetW / 2, by, carpetW, idx % 2 === 0 ? 44 : 28);
+
+          // معينات زخرفية داخل الشريط الذهبي
+          c.fillStyle = COLORS.crimsonDark;
+          for (let dx = -carpetW / 2 + 18; dx < carpetW / 2 - 10; dx += 32) {
+            c.beginPath();
+            c.moveTo(dx, by + 8);
+            c.lineTo(dx + 10, by + 22);
+            c.lineTo(dx, by + 36);
+            c.lineTo(dx - 10, by + 22);
+            c.closePath();
+            c.fill();
+          }
+        });
+        c.restore();
+
+        // الحافة الحلزونية العلوية للسجادة الملفوفة
+        c.fillStyle = '#5c0b10';
+        c.beginPath();
+        c.ellipse(0, -carpetH / 2 + 12, carpetW / 2, 28, 0, 0, Math.PI * 2);
+        c.fill();
+        c.strokeStyle = COLORS.gold;
+        c.lineWidth = 6;
+        c.stroke();
+
+        // دوامة اللف الداخلية
+        c.strokeStyle = '#f5ead6';
+        c.lineWidth = 4;
+        c.beginPath();
+        for (let a = 0; a < Math.PI * 4; a += 0.2) {
+          const r = (a / (Math.PI * 4)) * (carpetW * 0.38);
+          const sx = Math.cos(a) * r;
+          const sy = -carpetH / 2 + 12 + Math.sin(a) * (r * 0.28);
+          if (a === 0) c.moveTo(sx, sy);
+          else c.lineTo(sx, sy);
+        }
+        c.stroke();
+
+        // 2. غلاف النايلون الشفاف ينمو من الأسفل للأعلى
+        if (wrapProg > 0) {
+          const wrapTopY = carpetH / 2 - (carpetH + 90) * wrapProg;
+          const wrapHeight = (carpetH + 90) * wrapProg;
+
+          c.save();
+          c.beginPath();
+          c.rect(-carpetW / 2 - 35, wrapTopY - 80, carpetW + 70, wrapHeight + 100);
+          c.clip();
+
+          // مروحة النايلون العلوية بعد الإغلاق
+          if (wrapProg > 0.82) {
+            const fanScale = easeOutBack((wrapProg - 0.82) / 0.18);
+            c.save();
+            c.translate(0, -carpetH / 2 - 20);
+            c.scale(fanScale, fanScale);
+            c.fillStyle = 'rgba(255, 255, 255, 0.28)';
+            c.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+            c.lineWidth = 3;
+            c.beginPath();
+            c.moveTo(0, 15);
+            c.lineTo(-75, -85);
+            c.quadraticCurveTo(0, -110, 75, -85);
+            c.closePath();
+            c.fill();
+            c.stroke();
+            c.restore();
+          }
+
+          // جسم كيس النايلون الشفاف
+          const nylonGrad = c.createLinearGradient(-carpetW / 2 - 16, 0, carpetW / 2 + 16, 0);
+          nylonGrad.addColorStop(0, 'rgba(255, 255, 255, 0.36)');
+          nylonGrad.addColorStop(0.2, 'rgba(255, 255, 255, 0.12)');
+          nylonGrad.addColorStop(0.5, 'rgba(200, 235, 255, 0.18)');
+          nylonGrad.addColorStop(0.82, 'rgba(255, 255, 255, 0.38)');
+          nylonGrad.addColorStop(1, 'rgba(255, 255, 255, 0.25)');
+
+          c.fillStyle = nylonGrad;
+          roundRectPath(c, -carpetW / 2 - 16, -carpetH / 2 - 14, carpetW + 32, carpetH + 28, 42);
+          c.fill();
+
+          c.lineWidth = 4;
+          c.strokeStyle = 'rgba(255, 255, 255, 0.72)';
+          c.stroke();
+
+          // حافة نمو النايلون المتوهجة أثناء الصعود
+          if (wrapProg < 0.99) {
+            c.strokeStyle = COLORS.orange;
+            c.lineWidth = 6;
+            c.beginPath();
+            c.moveTo(-carpetW / 2 - 20, wrapTopY);
+            c.lineTo(carpetW / 2 + 20, wrapTopY);
+            c.stroke();
+          }
+
+          // اللمعة البراقة التي تمر فوق النايلون
+          if (sheenProg > 0 && sheenProg < 1) {
+            const sheenY = (carpetH / 2 + 120) - sheenProg * (carpetH + 280);
+            c.save();
+            roundRectPath(c, -carpetW / 2 - 16, -carpetH / 2 - 14, carpetW + 32, carpetH + 28, 42);
+            c.clip();
+            c.rotate(-0.32);
+            const shGrad = c.createLinearGradient(0, sheenY - 70, 0, sheenY + 70);
+            shGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+            shGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.78)');
+            shGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            c.fillStyle = shGrad;
+            c.fillRect(-300, sheenY - 70, 600, 140);
+            c.restore();
+          }
+
+          c.restore();
+        }
+
+        // 3. الربطتان البرتقاليتان (أعلى وأسفل السجادة المغلفة)
+        function drawOrangeTie(ty, scaleVal) {
+          if (scaleVal <= 0) return;
+          c.save();
+          c.translate(0, ty);
+          c.scale(scaleVal, scaleVal);
+
+          c.fillStyle = COLORS.orange;
+          c.strokeStyle = COLORS.white;
+          c.lineWidth = 4;
+          roundRectPath(c, -carpetW / 2 - 22, -16, carpetW + 44, 32, 14);
+          c.fill();
+          c.stroke();
+
+          // عقدة الربطة البرتقالية
+          c.beginPath();
+          c.arc(0, 0, 22, 0, Math.PI * 2);
+          c.fillStyle = '#d96b0c';
+          c.fill();
+          c.stroke();
+          c.restore();
+        }
+
+        drawOrangeTie(-175, tie1Scale);
+        drawOrangeTie(175, tie2Scale);
+
+        c.restore();
+
+        drawSceneHeaderAndBanner(c, 3, 'تغليف', 'تغليف احترافي!', localT);
+      }
+
+      // المشهد 4 (9.5 - 13 ث): تسليم
+      function renderScene4(c, localT, globalT) {
+        drawBrandBackdrop(c, globalT, false);
+
+        // 1. إطار أبيض مدوّر لصورة التسليم أو البديل المرسوم بالكود
+        const frameW = 760;
+        const frameH = 600;
+        const frameX = (W - frameW) / 2;
+        const frameY = 300;
+        const cardScale = easeOutBack(progress(localT, 0.05, 0.55));
+
+        c.save();
+        c.translate(W / 2, frameY + frameH / 2);
+        c.scale(cardScale, cardScale);
+        c.translate(-W / 2, -(frameY + frameH / 2));
+
+        // ظل الإطار
+        c.fillStyle = 'rgba(0, 0, 0, 0.42)';
+        roundRectPath(c, frameX + 12, frameY + 18, frameW, frameH, 42);
+        c.fill();
+
+        // المحتوى داخل الإطار المدوّر
+        c.save();
+        roundRectPath(c, frameX, frameY, frameW, frameH, 38);
+        c.clip();
+
+        if (uploadedImages.scene4) {
+          const zoom = 1.0 + 0.08 * easeInOutSine(localT / 3.5);
+          drawImageCover(c, uploadedImages.scene4, frameX, frameY, frameW, frameH, zoom);
+        } else {
+          // بديل مرسوم بالكود: باب منزل أنيق مع سجادة ملفوفة ومغلفة بجانبه
+          const wallGrad = c.createLinearGradient(frameX, frameY, frameX, frameY + frameH);
+          wallGrad.addColorStop(0, '#1e5780');
+          wallGrad.addColorStop(0.75, '#133b5c');
+          wallGrad.addColorStop(0.75, '#37474f');
+          wallGrad.addColorStop(1, '#263238');
+          c.fillStyle = wallGrad;
+          c.fillRect(frameX, frameY, frameW, frameH);
+
+          // إطار الباب الخشبي الفاخر
+          const doorW = 260;
+          const doorH = 410;
+          const doorX = frameX + 190;
+          const doorY = frameY + 75;
+
+          c.fillStyle = '#f5f5f5';
+          roundRectPath(c, doorX - 16, doorY - 16, doorW + 32, doorH + 16, 12);
+          c.fill();
+
+          const doorGrad = c.createLinearGradient(doorX, doorY, doorX + doorW, doorY + doorH);
+          doorGrad.addColorStop(0, '#6d4c41');
+          doorGrad.addColorStop(0.5, '#5d4037');
+          doorGrad.addColorStop(1, '#3e2723');
+          c.fillStyle = doorGrad;
+          roundRectPath(c, doorX, doorY, doorW, doorH, 8);
+          c.fill();
+
+          // ألواح الباب ومقبض ذهبي
+          c.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+          c.lineWidth = 4;
+          c.strokeRect(doorX + 28, doorY + 28, doorW - 56, 150);
+          c.strokeRect(doorX + 28, doorY + 205, doorW - 56, 170);
+
+          c.fillStyle = COLORS.gold;
+          c.beginPath();
+          c.arc(doorX + doorW - 36, doorY + 200, 12, 0, Math.PI * 2);
+          c.fill();
+
+          // دعاسة ترحيب أمام الباب
+          c.fillStyle = COLORS.orange;
+          roundRectPath(c, doorX + 20, doorY + doorH + 10, doorW - 40, 34, 8);
+          c.fill();
+
+          // السجادة الملفوفة والمغلفة متكئة بجانب الباب
+          c.save();
+          c.translate(frameX + 555, frameY + 305);
+          c.rotate(0.12);
+          c.fillStyle = COLORS.crimson;
+          roundRectPath(c, -48, -175, 96, 350, 24);
+          c.fill();
+          c.fillStyle = COLORS.gold;
+          c.fillRect(-48, -95, 96, 26);
+          c.fillRect(-48, 55, 96, 26);
+
+          // نايلون التغليف حول السجادة
+          c.fillStyle = 'rgba(255, 255, 255, 0.28)';
+          c.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+          c.lineWidth = 3;
+          roundRectPath(c, -56, -185, 112, 370, 28);
+          c.fill();
+          c.stroke();
+
+          // ربطات برتقالية
+          c.fillStyle = COLORS.orange;
+          c.fillRect(-58, -115, 116, 16);
+          c.fillRect(-58, 95, 116, 16);
+          c.restore();
+        }
+        c.restore();
+
+        // حدود الإطار الأبيض المدوّر
+        c.lineWidth = 18;
+        c.strokeStyle = COLORS.white;
+        roundRectPath(c, frameX, frameY, frameW, frameH, 38);
+        c.stroke();
+
+        c.lineWidth = 5;
+        c.strokeStyle = COLORS.orange;
+        roundRectPath(c, frameX - 9, frameY - 9, frameW + 18, frameH + 18, 44);
+        c.stroke();
+        c.restore();
+
+        // 2. طريق منقّط وشاحنة التوصيل 🚚 تتحرك عليه
+        const roadY = 1105;
+        const roadX1 = 120;
+        const roadX2 = W - 120;
+
+        c.save();
+        // خلفية الطريق
+        c.fillStyle = 'rgba(6, 24, 38, 0.78)';
+        roundRectPath(c, roadX1 - 30, roadY - 52, roadX2 - roadX1 + 60, 104, 52);
+        c.fill();
+        c.lineWidth = 3;
+        c.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+        c.stroke();
+
+        // الخط المنقّط في منتصف الطريق
+        c.strokeStyle = COLORS.orange;
+        c.lineWidth = 8;
+        c.setLineDash([28, 22]);
+        c.lineDashOffset = localT * 140;
+        c.beginPath();
+        c.moveTo(roadX1 + 30, roadY);
+        c.lineTo(roadX2 - 30, roadY);
+        c.stroke();
+        c.setLineDash([]);
+
+        // حركة الشاحنة 🚚 على الطريق المنقّط (من اليمين إلى اليسار)
+        const truckProg = easeInOutCubic(progress(localT, 0.1, 3.1));
+        const truckX = (roadX2 - 70) - truckProg * (roadX2 - roadX1 - 140);
+        const truckBounce = Math.sin(localT * 18) * 4;
+
+        c.save();
+        c.translate(truckX, roadY - 18 + truckBounce);
+
+        // دائرة مضيئة خلف الشاحنة
+        c.fillStyle = COLORS.white;
+        c.beginPath();
+        c.arc(0, 12, 62, 0, Math.PI * 2);
+        c.fill();
+        c.lineWidth = 6;
+        c.strokeStyle = COLORS.orange;
+        c.stroke();
+
+        // رمز الشاحنة 🚚
+        setupArabicText(c);
+        c.font = '92px "Cairo", "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
+        c.fillText('🚚', 0, 14);
+        c.restore();
+
+        c.restore();
+
+        drawSceneHeaderAndBanner(c, 4, 'تسليم', 'توصيل من الباب للباب!', localT);
+      }
+
+      // المشهد 5 (13 - 16 ث): ختام
+      function renderScene5(c, localT, globalT) {
+        drawBrandBackdrop(c, globalT, true);
+
+        // موجة برتقالية وموجة بيضاء انسيابية في الخلفية
+        c.save();
+        c.beginPath();
+        c.moveTo(0, H * 0.72);
+        c.bezierCurveTo(
+          W * 0.32,
+          H * 0.64 + Math.sin(globalT * 2) * 20,
+          W * 0.68,
+          H * 0.80 - Math.sin(globalT * 2) * 20,
+          W,
+          H * 0.68
+        );
+        c.lineTo(W, H);
+        c.lineTo(0, H);
+        c.closePath();
+        const waveGrad = c.createLinearGradient(0, H * 0.65, W, H);
+        waveGrad.addColorStop(0, COLORS.orange);
+        waveGrad.addColorStop(1, '#c96208');
+        c.fillStyle = waveGrad;
+        c.fill();
+
+        // طبقة زرقاء داكنة سفلية فوق الموجة لإبراز أرقام التواصل
+        c.beginPath();
+        c.moveTo(0, H * 0.79);
+        c.bezierCurveTo(W * 0.38, H * 0.72, W * 0.7, H * 0.85, W, H * 0.76);
+        c.lineTo(W, H);
+        c.lineTo(0, H);
+        c.closePath();
+        c.fillStyle = COLORS.blueDark;
+        c.fill();
+        c.restore();
+
+        setupArabicText(c);
+
+        // 1. الشعار المرسوم بالكود (سجادة ملفوفة داخل دائرة بيضاء)
+        const logoScale = easeOutBack(progress(localT, 0.05, 0.6));
+        const logoX = W / 2;
+        const logoY = 470;
+
+        c.save();
+        c.translate(logoX, logoY);
+        c.scale(logoScale, logoScale);
+
+        // هالة خارجية للشعار
+        c.fillStyle = 'rgba(242, 140, 40, 0.25)';
+        c.beginPath();
+        c.arc(0, 0, 172, 0, Math.PI * 2);
+        c.fill();
+
+        // الدائرة البيضاء الرئيسية
+        c.fillStyle = COLORS.white;
+        c.beginPath();
+        c.arc(0, 0, 145, 0, Math.PI * 2);
+        c.fill();
+        c.lineWidth = 9;
+        c.strokeStyle = COLORS.orange;
+        c.stroke();
+
+        // شريط مائي أزرق يلتف حول السجادة داخل الشعار
+        c.fillStyle = COLORS.blueLight;
+        c.beginPath();
+        c.arc(0, 10, 108, 0.2, Math.PI - 0.2);
+        c.fill();
+
+        // رسم السجادة الملفوفة داخل الدائرة البيضاء
+        c.fillStyle = COLORS.crimson;
+        roundRectPath(c, -42, -92, 84, 176, 22);
+        c.fill();
+        c.lineWidth = 4;
+        c.strokeStyle = COLORS.blueDark;
+        c.stroke();
+
+        // زخرفة ذهبية على سجادة الشعار
+        c.fillStyle = COLORS.gold;
+        c.fillRect(-40, -36, 80, 22);
+        c.fillRect(-40, 20, 80, 22);
+
+        // حلزون رأس السجادة في الشعار
+        c.fillStyle = COLORS.white;
+        c.beginPath();
+        c.ellipse(0, -82, 36, 13, 0, 0, Math.PI * 2);
+        c.fill();
+        c.strokeStyle = COLORS.blueDark;
+        c.lineWidth = 4;
+        c.stroke();
+
+        // نجوم لمعان داخل الشعار
+        c.fillStyle = COLORS.orange;
+        c.font = '900 36px "Cairo", sans-serif';
+        c.fillText('✦', -86, -48);
+        c.fillText('✦', 88, -32);
+        c.restore();
+
+        // 2. اسم الشركة: «شركة اسطنبول لخدمات التنظيف»
+        const nameEnter = easeOutCubic(progress(localT, 0.25, 0.5));
+        c.save();
+        c.globalAlpha = nameEnter;
+        c.translate(W / 2, 745 + (1 - nameEnter) * 40);
+        c.font = '900 72px "Cairo", Tahoma, sans-serif';
+        c.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        c.fillText('شركة اسطنبول لخدمات التنظيف', 0, 6);
+        c.fillStyle = COLORS.white;
+        c.fillText('شركة اسطنبول لخدمات التنظيف', 0, 0);
+        c.restore();
+
+        // 3. الشعار النصي: «من باب المنزل إلى باب المنزل»
+        const sloganEnter = easeOutBack(progress(localT, 0.42, 0.55));
+        c.save();
+        c.translate(W / 2, 895);
+        c.scale(sloganEnter, sloganEnter);
+
+        const slW = 790;
+        const slH = 104;
+        c.fillStyle = COLORS.orange;
+        roundRectPath(c, -slW / 2, -slH / 2, slW, slH, 52);
+        c.fill();
+        c.lineWidth = 4;
+        c.strokeStyle = COLORS.white;
+        c.stroke();
+
+        c.font = '800 54px "Cairo", Tahoma, sans-serif';
+        c.fillStyle = COLORS.white;
+        c.fillText('من باب المنزل إلى باب المنزل', 0, 4);
+        c.restore();
+
+        // 4. الرقم 0592295000 بخط كبير داخل إطار
+        const phoneEnter = easeOutBack(progress(localT, 0.6, 0.55));
+        const pulseFrame = 1 + Math.sin(localT * 6) * 0.018;
+        c.save();
+        c.translate(W / 2, 1170);
+        c.scale(phoneEnter * pulseFrame, phoneEnter * pulseFrame);
+
+        const phW = 840;
+        const phH = 185;
+        c.fillStyle = 'rgba(255, 255, 255, 0.96)';
+        roundRectPath(c, -phW / 2, -phH / 2, phW, phH, 36);
+        c.fill();
+
+        c.lineWidth = 10;
+        c.strokeStyle = COLORS.orange;
+        c.stroke();
+
+        c.direction = 'ltr';
+        c.font = '900 96px "Cairo", Tahoma, sans-serif';
+        c.fillStyle = COLORS.blueDark;
+        c.fillText('📞 0592295000', 0, 8);
+        c.restore();
+
+        // 5. الموقع: «الخليل - حلحول»
+        const locEnter = easeOutCubic(progress(localT, 0.8, 0.5));
+        c.save();
+        c.globalAlpha = locEnter;
+        c.translate(W / 2, 1620 + (1 - locEnter) * 30);
+
+        c.fillStyle = 'rgba(255, 255, 255, 0.14)';
+        roundRectPath(c, -310, -58, 620, 116, 58);
+        c.fill();
+        c.lineWidth = 3;
+        c.strokeStyle = COLORS.orange;
+        c.stroke();
+
+        setupArabicText(c);
+        c.font = '800 62px "Cairo", Tahoma, sans-serif';
+        c.fillStyle = COLORS.white;
+        c.fillText('📍 الخليل - حلحول', 0, 4);
+        c.restore();
+      }
+
+      // دالة موحدة لرسم مشهد معين حسب رقمه
+      function renderSceneByIndex(c, index, localT, globalT) {
+        switch (index) {
+          case 0:
+            renderScene1(c, localT, globalT);
+            break;
+          case 1:
+            renderScene2(c, localT, globalT);
+            break;
+          case 2:
+            renderScene3(c, localT, globalT);
+            break;
+          case 3:
+            renderScene4(c, localT, globalT);
+            break;
+          case 4:
+          default:
+            renderScene5(c, localT, globalT);
+            break;
+        }
+      }
+
+      // ==========================================
+      // 6. شريط التقدم العلوي (5 أجزاء) ومؤشر الخطوات
+      // ==========================================
+      function drawTopHUD(c, t) {
+        c.save();
+        setupArabicText(c);
+
+        // أ) شريط التقدم المقسّم إلى 5 أجزاء في أعلى الشاشة (RTL: من اليمين لليسار)
+        const marginX = 56;
+        const barY = 48;
+        const barH = 16;
+        const gap = 14;
+        const totalW = W - marginX * 2;
+        const segW = (totalW - gap * 4) / 5;
+
+        for (let i = 0; i < 5; i++) {
+          const sc = SCENES[i];
+          // ترتيب الأجزاء من اليمين إلى اليسار بما يتوافق مع العربية
+          const segX = W - marginX - (i + 1) * segW - i * gap;
+
+          // خلفية الجزء
+          c.fillStyle = 'rgba(255, 255, 255, 0.24)';
+          roundRectPath(c, segX, barY, segW, barH, 8);
+          c.fill();
+
+          // نسبة الامتلاء لهذا المشهد
+          const segProg = clamp((t - sc.start) / (sc.end - sc.start), 0, 1);
+          if (segProg > 0) {
+            const fillW = segW * segProg;
+            c.fillStyle = COLORS.orange;
+            roundRectPath(c, segX + (segW - fillW), barY, fillW, barH, 8);
+            c.fill();
+          }
+        }
+
+        // ب) مؤشر الخطوات: (غسيل ← تعقيم ← تغليف ← تسليم)
+        const hudY = 148;
+        const hudW = 968;
+        const hudH = 98;
+        const hudX = (W - hudW) / 2;
+
+        c.fillStyle = 'rgba(10, 47, 77, 0.84)';
+        roundRectPath(c, hudX, hudY - hudH / 2, hudW, hudH, 49);
+        c.fill();
+        c.lineWidth = 3;
+        c.strokeStyle = 'rgba(242, 140, 40, 0.55)';
+        c.stroke();
+
+        const steps = ['غسيل', 'تعقيم', 'تغليف', 'تسليم'];
+        // تحديد الخطوة النشطة حالياً
+        let activeStep = 0;
+        if (t < 3.0) activeStep = 0;
+        else if (t < 6.0) activeStep = 1;
+        else if (t < 9.5) activeStep = 2;
+        else if (t < 13.0) activeStep = 3;
+        else activeStep = 4; // في مشهد الختام تضيء جميع الخطوات كمكتملة
+
+        // مواقع الخطوات الأربع من اليمين إلى اليسار
+        const stepCentersX = [855, 645, 435, 225];
+        const arrowCentersX = [750, 540, 330];
+
+        steps.forEach((label, idx) => {
+          const cx = stepCentersX[idx];
+          const isCurrent = activeStep === idx || activeStep === 4;
+          const isPassed = activeStep > idx;
+
+          c.save();
+          c.translate(cx, hudY);
+
+          if (isCurrent) {
+            const pulse = 1 + Math.sin(t * 7) * 0.04;
+            c.scale(pulse, pulse);
+
+            c.fillStyle = COLORS.orange;
+            roundRectPath(c, -82, -32, 164, 64, 32);
+            c.fill();
+
+            c.lineWidth = 3;
+            c.strokeStyle = COLORS.white;
+            c.stroke();
+
+            c.font = '900 36px "Cairo", Tahoma, sans-serif';
+            c.fillStyle = COLORS.white;
+            c.fillText(label, 0, 2);
+          } else {
+            c.fillStyle = isPassed
+              ? 'rgba(242, 140, 40, 0.28)'
+              : 'rgba(255, 255, 255, 0.08)';
+            roundRectPath(c, -76, -28, 152, 56, 28);
+            c.fill();
+
+            c.font = '700 33px "Cairo", Tahoma, sans-serif';
+            c.fillStyle = isPassed ? '#ffd8b0' : 'rgba(255, 255, 255, 0.65)';
+            c.fillText(label, 0, 2);
+          }
+          c.restore();
+        });
+
+        // الأسهم (←) بين الخطوات
+        c.font = '900 36px "Cairo", Tahoma, sans-serif';
+        arrowCentersX.forEach((ax, idx) => {
+          c.fillStyle = activeStep > idx ? COLORS.orange : 'rgba(255, 255, 255, 0.45)';
+          c.fillText('←', ax, hudY + 2);
+        });
+
+        c.restore();
+      }
+
+      // ==========================================
+      // 7. الدالة الرئيسية draw(t) (من 0 إلى 16 ثانية)
+      // ==========================================
+      function draw(t) {
+        const clampedT = clamp(t, 0, DURATION);
+
+        // تحديد المشهد الأساسي
+        let sceneIdx = 0;
+        for (let i = 0; i < SCENES.length; i++) {
+          if (clampedT >= SCENES[i].start && clampedT <= SCENES[i].end) {
+            sceneIdx = i;
+            break;
+          }
+        }
+
+        const curScene = SCENES[sceneIdx];
+        const localT = clampedT - curScene.start;
+
+        // رسم المشهد الحالي على الكانفاس الرئيسي
+        ctx.clearRect(0, 0, W, H);
+        renderSceneByIndex(ctx, sceneIdx, localT, clampedT);
+
+        // التحقق مما إذا كنا في فترة انتقال تلاشي (0.5 ثانية) نحو المشهد التالي
+        if (sceneIdx < SCENES.length - 1) {
+          const fadeStart = curScene.end - CROSSFADE;
+          if (clampedT >= fadeStart) {
+            const fadeAlpha = easeInOutCubic((clampedT - fadeStart) / CROSSFADE);
+            const nextSceneIdx = sceneIdx + 1;
+            const nextLocalT = clampedT - fadeStart;
+
+            fadeCtx.clearRect(0, 0, W, H);
+            renderSceneByIndex(fadeCtx, nextSceneIdx, nextLocalT, clampedT);
+
+            ctx.save();
+            ctx.globalAlpha = fadeAlpha;
+            ctx.drawImage(fadeCanvas, 0, 0);
+            ctx.restore();
+          }
+        }
+
+        // رسم شريط التقدم العلوي ومؤشر الخطوات فوق جميع المشاهد
+        drawTopHUD(ctx, clampedT);
+      }
+
+      // جعل الدالة متاحة عالمياً أيضاً
+      window.draw = draw;
+
+      // ==========================================
+      // 8. توليد الموسيقى الخلفية الهادئة (Web Audio API)
+      // ==========================================
+      let audioCtx = null;
+      let masterGain = null;
+      let recordAudioDest = null;
+      let musicSchedulerId = null;
+      let nextNoteTime = 0;
+      let noteStep = 0;
+
+      // سلم موسيقي هادئ ودافئ (تآلفات + نغمات رخيمة)
+      const CHORD_NOTES = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5
+      const MELODY_SEQ = [
+        523.25, 659.25, 783.99, 659.25,
+        587.33, 698.46, 880.00, 698.46,
+        523.25, 659.25, 783.99, 1046.50,
+        783.99, 659.25, 587.33, 523.25
+      ];
+
+      function ensureAudioContext() {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContextClass) return null;
+          audioCtx = new AudioContextClass();
+          masterGain = audioCtx.createGain();
+          masterGain.gain.value = soundToggle.checked ? 0.22 : 0.0;
+          masterGain.connect(audioCtx.destination);
+
+          if (typeof audioCtx.createMediaStreamDestination === 'function') {
+            recordAudioDest = audioCtx.createMediaStreamDestination();
+            masterGain.connect(recordAudioDest);
+          }
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        return audioCtx;
+      }
+
+      function triggerGentleNote(freq, startTime, duration, volume, type) {
+        if (!audioCtx || !masterGain) return;
+        const osc = audioCtx.createOscillator();
+        const noteGain = audioCtx.createGain();
+        const filter = audioCtx.createBiquadFilter();
+
+        osc.type = type || 'sine';
+        osc.frequency.setValueAtTime(freq, startTime);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1400, startTime);
+
+        noteGain.gain.setValueAtTime(0.0001, startTime);
+        noteGain.gain.linearRampToValueAtTime(volume, startTime + 0.08);
+        noteGain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+        osc.connect(filter);
+        filter.connect(noteGain);
+        noteGain.connect(masterGain);
+
+        osc.start(startTime);
+        osc.stop(startTime + duration + 0.05);
+      }
+
+      function startBackgroundMusic() {
+        const ctxAudio = ensureAudioContext();
+        if (!ctxAudio) return;
+        stopBackgroundMusic();
+
+        nextNoteTime = ctxAudio.currentTime + 0.05;
+        noteStep = 0;
+
+        musicSchedulerId = setInterval(() => {
+          if (!isPlaying && !isRecording) return;
+          while (nextNoteTime < ctxAudio.currentTime + 0.25) {
+            // نغمة خلفية دافئة كل 4 خطوات
+            if (noteStep % 4 === 0) {
+              CHORD_NOTES.forEach((f) => {
+                triggerGentleNote(f * 0.5, nextNoteTime, 1.9, 0.08, 'triangle');
+              });
+            }
+            // نغمة لحن هادئة
+            const melFreq = MELODY_SEQ[noteStep % MELODY_SEQ.length];
+            triggerGentleNote(melFreq, nextNoteTime, 0.45, 0.14, 'sine');
+
+            nextNoteTime += 0.5;
+            noteStep++;
+          }
+        }, 80);
+      }
+
+      function stopBackgroundMusic() {
+        if (musicSchedulerId) {
+          clearInterval(musicSchedulerId);
+          musicSchedulerId = null;
+        }
+      }
+
+      soundToggle.addEventListener('change', () => {
+        soundIcon.textContent = soundToggle.checked ? '🔊' : '🔇';
+        if (masterGain && audioCtx) {
+          masterGain.gain.setTargetAtTime(
+            soundToggle.checked ? 0.22 : 0.0,
+            audioCtx.currentTime,
+            0.05
+          );
+        }
+      });
+
+      // ==========================================
+      // 9. حلقة التشغيل (Playback Loop) وتحديث الواجهة
+      // ==========================================
+      function updateUIForTime(t) {
+        timeScrubber.value = t.toFixed(2);
+        timeReadout.textContent = `${t.toFixed(1)}s / 16.0s`;
+
+        sceneChips.forEach((chip, idx) => {
+          const sc = SCENES[idx];
+          const isActive = t >= sc.start && (t < sc.end || (idx === 4 && t <= DURATION));
+          chip.classList.toggle('active', isActive);
+        });
+      }
+
+      function stopPlayback() {
+        isPlaying = false;
+        if (animFrameId) {
+          cancelAnimationFrame(animFrameId);
+          animFrameId = null;
+        }
+        stopBackgroundMusic();
+        playBtnText.textContent = 'تشغيل / إعادة';
+      }
+
+      function startPlayback(fromStart) {
+        if (animFrameId) {
+          cancelAnimationFrame(animFrameId);
+          animFrameId = null;
+        }
+        if (fromStart || currentTime >= DURATION - 0.05) {
+          currentTime = 0;
+        }
+        isPlaying = true;
+        playBtnText.textContent = 'إعادة من البداية';
+        lastPerfTime = performance.now();
+        startBackgroundMusic();
+
+        function tick(now) {
+          if (!isPlaying) return;
+          const dt = (now - lastPerfTime) / 1000;
+          lastPerfTime = now;
+          currentTime += dt;
+
+          if (currentTime >= DURATION) {
+            currentTime = DURATION;
+            draw(currentTime);
+            updateUIForTime(currentTime);
+            stopPlayback();
+            if (!isRecording) {
+              statusText.textContent = 'اكتمل عرض الإعلان (16 ثانية)';
+            }
+            return;
+          }
+
+          draw(currentTime);
+          updateUIForTime(currentTime);
+          animFrameId = requestAnimationFrame(tick);
+        }
+
+        animFrameId = requestAnimationFrame(tick);
+      }
+
+      playReplayBtn.addEventListener('click', () => {
+        if (isRecording) return;
+        ensureAudioContext();
+        statusText.textContent = 'جاري عرض الإعلان المتحرك...';
+        startPlayback(true);
+      });
+
+      canvas.addEventListener('click', () => {
+        if (isRecording) return;
+        ensureAudioContext();
+        if (isPlaying) {
+          stopPlayback();
+          statusText.textContent = 'تم الإيقاف المؤقت — اضغط للمتابعة';
+        } else {
+          statusText.textContent = 'جاري عرض الإعلان المتحرك...';
+          startPlayback(currentTime >= DURATION - 0.05);
+        }
+      });
+
+      timeScrubber.addEventListener('input', () => {
+        if (isRecording) return;
+        stopPlayback();
+        currentTime = parseFloat(timeScrubber.value) || 0;
+        draw(currentTime);
+        updateUIForTime(currentTime);
+      });
+
+      sceneChips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          if (isRecording) return;
+          ensureAudioContext();
+          currentTime = parseFloat(chip.getAttribute('data-time')) || 0;
+          draw(currentTime);
+          updateUIForTime(currentTime);
+          startPlayback(false);
+        });
+      });
+
+      // ==========================================
+      // 10. رفع الصور عبر URL.createObjectURL
+      // ==========================================
+      function handleImageUpload(inputEl, key, urlKey, statusBadge) {
+        inputEl.addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+
+          if (uploadedImages[urlKey]) {
+            URL.revokeObjectURL(uploadedImages[urlKey]);
+          }
+
+          const objUrl = URL.createObjectURL(file);
+          uploadedImages[urlKey] = objUrl;
+
+          const img = new Image();
+          img.onload = () => {
+            uploadedImages[key] = img;
+            statusBadge.textContent = 'تم الرفع ✓';
+            statusBadge.style.background = 'rgba(34, 197, 94, 0.25)';
+            statusBadge.style.color = '#86efac';
+            draw(currentTime);
+          };
+          img.src = objUrl;
+        });
+      }
+
+      handleImageUpload(carpetImgInput, 'scene1', 'scene1Url', carpetImgStatus);
+      handleImageUpload(deliveryImgInput, 'scene4', 'scene4Url', deliveryImgStatus);
+
+      // ==========================================
+      // 11. تسجيل وتحميل الفيديو (MediaRecorder + captureStream)
+      // ==========================================
+      function getSupportedMimeType() {
+        if (typeof MediaRecorder === 'undefined') return null;
+        const candidates = [
+          { mime: 'video/mp4;codecs=avc1', ext: 'mp4' },
+          { mime: 'video/webm;codecs=vp9', ext: 'webm' },
+          { mime: 'video/webm', ext: 'webm' }
+        ];
+        for (let i = 0; i < candidates.length; i++) {
+          if (MediaRecorder.isTypeSupported(candidates[i].mime)) {
+            return candidates[i];
+          }
+        }
+        return null;
+      }
+
+      downloadVideoBtn.addEventListener('click', () => {
+        if (isRecording) return;
+
+        if (typeof canvas.captureStream !== 'function' || typeof MediaRecorder === 'undefined') {
+          statusText.textContent = 'عذراً، متصفحك الحالي لا يدعم تسجيل الفيديو من الكانفاس.';
+          return;
+        }
+
+        const formatInfo = getSupportedMimeType();
+        if (!formatInfo) {
+          statusText.textContent = 'عذراً، المتصفح لا يدعم صيغ تسجيل الفيديو المطلوبة (MP4 / WebM).';
+          return;
+        }
+
+        stopPlayback();
+        ensureAudioContext();
+
+        isRecording = true;
+        playReplayBtn.disabled = true;
+        downloadVideoBtn.disabled = true;
+        timeScrubber.disabled = true;
+        fallbackDownloadLink.style.display = 'none';
+
+        // تجهيز البث بمعدل 30 إطاراً في الثانية
+        const canvasStream = canvas.captureStream(FPS);
+        const combinedTracks = [...canvasStream.getVideoTracks()];
+
+        if (recordAudioDest && recordAudioDest.stream.getAudioTracks().length > 0) {
+          combinedTracks.push(recordAudioDest.stream.getAudioTracks()[0]);
+        }
+
+        const combinedStream = new MediaStream(combinedTracks);
+        const chunks = [];
+
+        let recorder;
+        try {
+          recorder = new MediaRecorder(combinedStream, {
+            mimeType: formatInfo.mime,
+            videoBitsPerSecond: 8000000
+          });
+        } catch (err) {
+          statusText.textContent = 'تعذّر بدء مسجل الفيديو في هذا المتصفح.';
+          isRecording = false;
+          playReplayBtn.disabled = false;
+          downloadVideoBtn.disabled = false;
+          timeScrubber.disabled = false;
+          return;
+        }
+
+        recorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) {
+            chunks.push(e.data);
+          }
+        };
+
+        recorder.onstop = () => {
+          stopBackgroundMusic();
+          isRecording = false;
+          playReplayBtn.disabled = false;
+          downloadVideoBtn.disabled = false;
+          timeScrubber.disabled = false;
+
+          const blob = new Blob(chunks, { type: formatInfo.mime });
+          if (currentBlobUrl) {
+            URL.revokeObjectURL(currentBlobUrl);
+          }
+          currentBlobUrl = URL.createObjectURL(blob);
+          const filename = `istanbul-carpet-ad.${formatInfo.ext}`;
+
+          // إظهار رابط التحميل الاحتياطي
+          fallbackDownloadLink.href = currentBlobUrl;
+          fallbackDownloadLink.download = filename;
+          fallbackDownloadLink.textContent = `📥 تحميل الفيديو المسجّل (${filename})`;
+          fallbackDownloadLink.style.display = 'block';
+
+          // بدء التحميل التلقائي
+          const autoLink = document.createElement('a');
+          autoLink.style.display = 'none';
+          autoLink.href = currentBlobUrl;
+          autoLink.download = filename;
+          document.body.appendChild(autoLink);
+          autoLink.click();
+          setTimeout(() => {
+            if (autoLink.parentNode) autoLink.parentNode.removeChild(autoLink);
+          }, 500);
+
+          statusText.textContent = `تم تجهيز الفيديو بنجاح (${formatInfo.ext.toUpperCase()})!`;
+          recordPercent.textContent = '100%';
+          recordProgressBar.style.width = '100%';
+        };
+
+        // بدء التسجيل بالزمن الحقيقي من 0 إلى 16 ثانية
+        currentTime = 0;
+        draw(0);
+        updateUIForTime(0);
+        recorder.start(200);
+        startBackgroundMusic();
+
+        const recStartPerf = performance.now();
+        statusText.textContent = 'جاري تسجيل الإعلان بالزمن الحقيقي...';
+
+        function recordTick(now) {
+          if (!isRecording) return;
+          const elapsed = (now - recStartPerf) / 1000;
+          currentTime = clamp(elapsed, 0, DURATION);
+
+          const pct = Math.min(100, Math.round((currentTime / DURATION) * 100));
+          recordPercent.textContent = `${pct}%`;
+          recordProgressBar.style.width = `${pct}%`;
+          statusText.textContent = `جاري تسجيل الفيديو... (${pct}%)`;
+
+          draw(currentTime);
+          updateUIForTime(currentTime);
+
+          if (elapsed >= DURATION) {
+            if (recorder.state !== 'inactive') {
+              recorder.stop();
+            }
+            return;
+          }
+          requestAnimationFrame(recordTick);
+        }
+
+        requestAnimationFrame(recordTick);
+      });
+
+      // ==========================================
+      // 12. انتظار تحميل خط Cairo قبل بدء الرسم
+      // ==========================================
+      async function init() {
+        statusText.textContent = 'جاري تحميل خط Cairo...';
+        try {
+          if (document.fonts && typeof document.fonts.load === 'function') {
+            await Promise.race([
+              Promise.all([
+                document.fonts.load('700 48px "Cairo"'),
+                document.fonts.load('900 96px "Cairo"')
+              ]),
+              new Promise((resolve) => setTimeout(resolve, 2000))
+            ]);
+          }
+        } catch (err) {
+          // في حال عدم توفر الاتصال يتم استخدام الخط البديل Tahoma تلقائياً
+        }
+        statusText.textContent = 'جاهز للتشغيل أو تسجيل الفيديو';
+        draw(0);
+        updateUIForTime(0);
+        startPlayback(true);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+</body>
+</html>
